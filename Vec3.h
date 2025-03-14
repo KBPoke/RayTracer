@@ -14,18 +14,31 @@ struct Vec3 {
         return *this;
     }
 
-    Vec3& operator*=(float a) {
+    Vec3& operator*=(const float a) {
         x *= a;
         y *= a;
         z *= a;
         return *this;
     }
 
+    Vec3 operator-() const {
+        return Vec3(-x, -y, -z);
+    }
 
-    Vec3 Normalized() const {
-        const float InvNorm = 1 / Norm();
-        Vec3 ret = { x * InvNorm, y * InvNorm, z * InvNorm };
-        return ret;
+    Vec3 operator+(const Vec3& other) const {
+        return Vec3(x + other.x, y + other.y, z + other.z);
+    }
+
+    Vec3 operator-(const Vec3& other) const {
+        return Vec3(x - other.x, y - other.y, z - other.z);
+    }
+
+    Vec3 operator*(const Vec3& other) const {
+        return Vec3(x * other.x, y * other.y, z * other.z);
+    }
+
+    Vec3 operator*( const float& a) const {
+        return Vec3(a * x, a * y, a * z);
     }
 
     float Norm_squared() const {
@@ -36,3 +49,18 @@ struct Vec3 {
         return std::sqrt(Norm_squared());
     }
 };
+
+float Dot_Product(const Vec3& v, const Vec3& u) {
+    return v.x * u.x + v.y * u.y + v.z * u.z;
+}
+
+Vec3 Cross_Product(const Vec3& v, const Vec3& u) {
+    return Vec3(v.y * u.z - v.z * u.y, v.z * u.x - v.x * u.z, v.x * u.y - v.y * u.x);
+}
+
+Vec3 Normalized(const Vec3& v) {
+    const float InvNorm = 1 / v.Norm();
+    return Vec3(v.x * InvNorm, v.y * InvNorm, v.z * InvNorm);
+}
+
+using Point3 = Vec3;

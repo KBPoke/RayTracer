@@ -1,10 +1,14 @@
 #pragma once
 
-using Pixel = Vec3;
+using color = Vec3;
 
 struct Image {
-	int width, height;
-	std::vector<Pixel> data;
+	const int width, height;
+	std::vector<color> data;
+
+    Image(const int width_, const int height_) : width(width_), height(height_) {
+        data.reserve(width * height);
+    }
 
     void print_image() const{
         std::ofstream file("output.ppm", std::ios::out | std::ios::binary);
