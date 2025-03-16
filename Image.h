@@ -15,7 +15,7 @@ struct Image {
 
         file << "P6\n" << width << " " << height << "\n255\n";
 
-        for (unsigned int i = 0; i < width * height; i++) {
+        for (int i = 0; i < width * height; i++) {
             file << (unsigned char)std::min(1.0f, data[i].x) * 255 <<
                 (unsigned char)(std::min(1.0f, data[i].y) * 255) <<
                 (unsigned char)(std::min(1.0f, data[i].z) * 255);
