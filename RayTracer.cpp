@@ -2,12 +2,12 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
+#include "helper_functions.cpp"
 #include "Vec3.h"
 #include "Image.h"
 #include "Ray.h"
+#include "Sphere.h"
 
-#define MAX_RAY_DEPTH 4
-#define MAX_RENDER_DISTANCE 1e9
 
 color ray_color(const Ray& r) {
     Vec3 unit_direction = Normalized(r.get_direction());
