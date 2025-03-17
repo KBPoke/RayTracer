@@ -72,3 +72,4 @@ Vec3 Normalized(const Vec3& v) {
 }
 
 using Point3 = Vec3;
+using color = Vec3;

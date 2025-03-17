@@ -1,7 +1,5 @@
 #pragma once
 
-using color = Vec3;
-
 struct Image {
 	const int width, height;
 	std::vector<color> data;
