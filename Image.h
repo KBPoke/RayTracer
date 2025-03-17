@@ -1,4 +1,7 @@
 #pragma once
+#include <vector>
+#include <algorithm>
+#include <fstream>
 
 struct Image {
 	const int width, height;
@@ -14,9 +17,9 @@ struct Image {
         file << "P6\n" << width << " " << height << "\n255\n";
 
         for (int i = 0; i < width * height; i++) {
-            file << (unsigned char)std::min(1.0f, data[i].x) * 255 <<
-                (unsigned char)(std::min(1.0f, data[i].y) * 255) <<
-                (unsigned char)(std::min(1.0f, data[i].z) * 255);
+            file << (char)(std::min(1.0f, data[i].x) * 255) <<
+                (char)(std::min(1.0f, data[i].y) * 255) <<
+                (char)(std::min(1.0f, data[i].z) * 255);
         }
         file.close();
     }
