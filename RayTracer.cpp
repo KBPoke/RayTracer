@@ -8,7 +8,7 @@
 #include "Sphere.h"
 
 color ray_color_background(const Ray& r) {
-    auto a = 0.5 * (r.get_direction().y + 1.0);
+    auto a = 0.5 * (r.direction.y + 1.0);
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.1, 0.4, 0.7);
     return color(0, 0, 0);
 }
@@ -39,7 +39,6 @@ int main()
 
 
     for (int j = 0; j < image.height; j++) {
-        std::cout << "\rScanlines remaining: " << (image.height - j) << ' ' << std::flush;
         for (int i = 0; i < image.width; i++) {
             Point3 pixel_center = pixel00_loc + (i * pixel_delta_horizontal) + (j * pixel_delta_vertical);
             Vec3 ray_direction = pixel_center - camera_origin;

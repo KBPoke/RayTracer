@@ -37,9 +37,9 @@ public:
 	Sphere(const Point3& c, const float r) : centre(c), radius(r), radius_square(r * r) {}
 
 	bool check_intersection(const Ray& ray, float& t) const {
-		Vec3 displacement = centre - ray.get_origin();
-		float a = ray.get_direction().Norm_squared();
-		float b = 2 * Dot_Product(ray.get_direction(), displacement);
+		Vec3 displacement = centre - ray.origin;
+		float a = ray.direction.Norm_squared();
+		float b = 2 * Dot_Product(ray.direction, displacement);
 		float c = displacement.Norm_squared() - radius * radius;
 
 		t = nearest_root(a, b, c);
