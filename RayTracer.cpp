@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-//#include "helper_functions.cpp"
 #include "Vec3.h"
 #include "Image.h"
 #include "Ray.h"
@@ -10,18 +9,16 @@
 color ray_color_background(const Ray& r) {
     auto a = 0.5 * (r.direction.y + 1.0);
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.1, 0.4, 0.7);
-    return color(0, 0, 0);
 }
-
 
 int main()
 {
     std::vector<Sphere> spheres;
 
     spheres.push_back(Sphere(Point3(0, 0, -4), 1.0));
-    spheres.push_back(Sphere(Point3(1, 0, 5), 0.5));
+    spheres.push_back(Sphere(Point3(1, 0, 5), 2.0));
 
-    Image image(640, 480);
+    Image image(1280, 960);
 
     float focal_length = 1.0;
     float viewport_height = 2.0;
@@ -43,14 +40,24 @@ int main()
             Point3 pixel_center = pixel00_loc + (i * pixel_delta_horizontal) + (j * pixel_delta_vertical);
             Vec3 ray_direction = pixel_center - camera_origin;
             Ray r(camera_origin, ray_direction);
-            float t1,t2;
 
-            if (spheres[0].check_intersection(r, t1) == true || spheres[1].check_intersection(r,t2) == true) {
-                image.data.push_back(color(1.0, 0, 0));
+            float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
+            Sphere* ObjectNearest = nullptr;
+
+            for (Sphere& object : spheres) {
+                if (object.check_intersection(r, ttemp) == true) {
+                    if (ttemp < tNearest) {
+                        tNearest = ttemp;
+                        ObjectNearest = &object;
+                    }
+                }
             }
 
-            else {
+            if (tNearest >= MAX_RENDER_DISTANCE) {
                 image.data.push_back(ray_color_background(r));
+            }
+            else {
+                image.data.push_back(ObjectNearest->return_color());
             }
         }
     }

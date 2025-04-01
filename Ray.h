@@ -8,8 +8,8 @@ public:
 	Ray() {}
 	Ray(const Point3& orig, const Vec3& direct) : origin(orig), direction(Normalized(direct)) {}
 
-	//const Point3& get_origin() const { return origin; }
-	//const Vec3& get_direction() const { return direction; }
+	const Point3& get_origin() const { return origin; }
+	const Vec3& get_direction() const { return direction; }
 
 	Point3 delta(const float& t) const {
 		return origin + t * direction;
