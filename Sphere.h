@@ -21,13 +21,13 @@ public:
 		if (t >= MAX_RENDER_DISTANCE) { return false; }
 
 		return true;
-	}
+	} 
 
-	const color& get_color() const {
+	const color& get_color() const override {
 		return SphereColor;
 	}
 
-	Vec3 get_surface_normal(const Point3& Point_Hit) const {
+	Vec3 get_surface_normal(const Point3& Point_Hit) const override {
 		return (Point_Hit - centre) / radius;
 	}
 };

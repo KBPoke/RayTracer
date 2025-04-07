@@ -5,6 +5,7 @@
 #include "Image.h"
 #include "Ray.h"
 #include "Sphere.h"
+#include "Plane.h"
 #include "Camera.h"
 
 color ray_color_background(const Ray& r) {
@@ -15,6 +16,7 @@ color ray_color_background(const Ray& r) {
 int main()
 {
     std::vector<Sphere> spheres;
+    Plane plane(Vec3(0,0,0),Vec3(0,-1,0),color(0.5,0.5,0));
 
     spheres.push_back(Sphere(Point3(1, 0, 1), 0.5, color(0,1,1)));
     spheres.push_back(Sphere(Point3(-0.1, 0.1, 2), 1));
@@ -24,31 +26,21 @@ int main()
     float focal_length = 1.0;
     float viewport_height = 2.0;
     float viewport_width = viewport_height * (float(image.width) / image.height);
-    Point3 camera_origin(0, 0, 0);
+    Point3 camera_origin(0, 1, 0);
 
     Camera camera(camera_origin, focal_length, viewport_width, image);
-
-    Vec3 viewport_horizontal_vector(viewport_width, 0, 0);
-    Vec3 viewport_vertical_vector(0, -viewport_height, 0);
-
-    Vec3 pixel_delta_horizontal = viewport_horizontal_vector / image.width;
-    Vec3 pixel_delta_vertical = viewport_vertical_vector / image.height;
-
-    Point3 viewport_upper_left_position = camera_origin + Vec3(0, 0, focal_length) - viewport_horizontal_vector / 2 - viewport_vertical_vector / 2;
-    std::cout << viewport_upper_left_position;
-    Point3 pixel00_loc = viewport_upper_left_position + 0.5 * (pixel_delta_horizontal + pixel_delta_vertical);
 
     std::cout << camera.pixel00_loc - camera_origin;
 
 
     for (int j = 0; j < camera.output.height; j++) {
         for (int i = 0; i < camera.output.width; i++) {
-            const Point3 pixel_center = camera.pixel00_loc + (i * pixel_delta_horizontal) + (j * pixel_delta_vertical);
+            const Point3 pixel_center = camera.pixel00_loc + (i * camera.pixel_delta_horizontal) + (j * camera.pixel_delta_vertical);
             const Vec3 ray_direction = pixel_center - camera.camera_origin;
             Ray r(camera_origin, ray_direction);
 
             float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
-            Sphere* ObjectNearest = nullptr;
+            Object* ObjectNearest = nullptr;
 
             for (Sphere& object : spheres) {
                 if (object.check_intersection(r, ttemp) == true) {
@@ -56,6 +48,13 @@ int main()
                         tNearest = ttemp;
                         ObjectNearest = &object;
                     }
+                }
+            }
+
+            if (plane.check_intersection(r, ttemp) == true) {
+                if (ttemp < tNearest) {
+                    tNearest = ttemp;
+                    ObjectNearest = &plane;
                 }
             }
 
