@@ -4,7 +4,7 @@
 #include <fstream>
 
 struct Image {
-	const int width, height;
+	const size_t width, height;
 	std::vector<color> data;
 
     Image(const int width_, const int height_) : width(width_), height(height_) {
@@ -24,3 +24,5 @@ struct Image {
         file.close();
     }
 };
+
+//TODO: Depending on how I handle the renderer, may end up creating a custom iterator for the color data
