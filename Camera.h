@@ -1,8 +1,11 @@
 #pragma once
+#include "helper_functions.h"
 #include "Vec3.h"
 #include "Image.h"
+#include "Ray.h"
+#include "Object.h"
 
-struct Camera {
+class Camera {
     Point3 camera_origin;
     const float focal_length;
     const float viewport_size;
@@ -11,11 +14,10 @@ struct Camera {
     Vec3 pixel_delta_vertical;
     Point3 pixel00_loc;
 
-//public:
+public:
     Camera(const Point3& origin, const float& focal_length, const float& size, Image& image);
+
+    void render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjectList);
 
     void print_output() const;
 };
-
-//TODO: Decide how to handle rendering, whether to change this to a class or keep as struct that's a member of a renderer class
-//Should probably construct the Image itself instead of storing a reference
