@@ -6,9 +6,10 @@ class Plane : public Object {
 	Point3 Origin;
 	Vec3 Normal;
 	color PlaneColor;
+	float albedo;
 public:
-	Plane(const Point3& o, const Vec3& n) : Origin(o), Normal(Normalized(n)), PlaneColor(color(1.0, 0, 0)) {}
-	Plane(const Point3& o, const Vec3& n, const color& Color) : Origin(o), Normal(Normalized(n)), PlaneColor(Color) {}
+	Plane(const Point3& o, const Vec3& n) : Origin(o), Normal(Normalized(n)), PlaneColor(color(1.0, 0, 0)), albedo(0.18) {}
+	Plane(const Point3& o, const Vec3& n, const color& Color) : Origin(o), Normal(Normalized(n)), PlaneColor(Color), albedo(0.18) {}
 
 	bool check_intersection(const Ray& ray, float& t) const override {
 		const float Perpendicular_Dot = Dot_Product(ray.direction, Normal);
@@ -29,8 +30,12 @@ public:
 		return PlaneColor;
 	}
 
-	Vec3 get_surface_normal(const Point3& Point_Hit) const override {
-		return Normal;
+	const Vec3& get_surface_normal(const Point3& Point_Hit) const override {
+		return -Normal;
+	}
+
+	const float& get_albedo() const override {
+		return albedo;
 	}
 };
 

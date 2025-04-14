@@ -8,6 +8,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Camera.h"
+#include "DistantLight.h"
 
 int main()
 {
@@ -19,6 +20,8 @@ int main()
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(-0.1, 0.1, 2), 1));
     SceneObjects.push_back(plane);
 
+    DistantLight Light(Vec3(-1, -1, 0));
+
     Image image(1280, 960);
 
     float focal_length = 1.0;
@@ -28,7 +31,7 @@ int main()
 
     Camera camera(camera_origin, focal_length, viewport_width, image);
 
-    camera.render_scene(SceneObjects);
+    camera.render_scene(SceneObjects, Light);
 
     camera.print_output();
 }

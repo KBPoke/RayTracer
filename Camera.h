@@ -1,9 +1,11 @@
 #pragma once
+#include <algorithm>
 #include "helper_functions.h"
 #include "Vec3.h"
 #include "Image.h"
 #include "Ray.h"
 #include "Object.h"
+#include "DistantLight.h"
 
 class Camera {
     Point3 camera_origin;
@@ -17,7 +19,7 @@ class Camera {
 public:
     Camera(const Point3& origin, const float& focal_length, const float& size, Image& image);
 
-    void render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjectList);
+    void render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjectList,const DistantLight& Light);
 
     void print_output() const;
 };
