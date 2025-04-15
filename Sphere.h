@@ -28,8 +28,8 @@ public:
 		return SphereColor;
 	}
 
-	const Vec3& get_surface_normal(const Point3& Point_Hit) const override {
-		return (Point_Hit - centre) / radius;
+	const Vec3 get_surface_normal(const Point3& Point_Hit) const override {
+		return Vec3((Point_Hit - centre) / radius);
 	}
 
 	const float& get_albedo() const override {

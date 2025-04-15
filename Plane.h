@@ -30,7 +30,7 @@ public:
 		return PlaneColor;
 	}
 
-	const Vec3& get_surface_normal(const Point3& Point_Hit) const override {
+	const Vec3 get_surface_normal(const Point3& Point_Hit) const override {
 		return -Normal;
 	}
 
