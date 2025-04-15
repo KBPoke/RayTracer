@@ -6,6 +6,7 @@
 #include "Ray.h"
 #include "Object.h"
 #include "DistantLight.h"
+#include "Hit_Data.h"
 
 class Camera {
     Point3 camera_origin;

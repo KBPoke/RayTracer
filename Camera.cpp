@@ -21,14 +21,15 @@ const color& Normal_Based_Surface_Color(const Vec3& Normal_Hit,const std::shared
     return 0.5 * (0.5 * color(Normal_Hit.x + 1, Normal_Hit.y + 1, Normal_Hit.z + 1) + HitObject->get_color());
 }
 
-const color& determine_hit_color(const Vec3& Normal_Hit, const Point3& Point_Hit, const std::shared_ptr<const Object>& HitObject, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {
+const color& determine_hit_color(Hit_Data hit_data, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {
     float visibility_mult = 1.0;
 
-    if (Light.check_direct_Lighting(Point_Hit, Normal_Hit, SceneObjectList) == false) {
+    if (Light.check_direct_Lighting(hit_data.Point_Hit, hit_data.Hit_Normal, SceneObjectList) == false) {
         visibility_mult = 0.05;
     }
 
-    const color ret = 5 * visibility_mult * HitObject->get_albedo() * Light.get_color() * std::max(0.f, Dot_Product(-Light.get_direction(), Normal_Hit)) * Normal_Based_Surface_Color(Normal_Hit, HitObject);
+    const color ret = 5 * visibility_mult * hit_data.Object_Hit->get_albedo() * Light.get_color() 
+        * std::max(0.f, Dot_Product(-Light.get_direction(), hit_data.Hit_Normal)) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit);
 
     return ret;
 }
@@ -53,16 +54,18 @@ void Camera::render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjec
                     }
                 }
             }
-            
-            if (tNearest >= MAX_RENDER_DISTANCE) {
-                output.data.push_back(ray_color_background(ray));
-            }
-            else {
-                const Point3 Point_Hit = ray.delta(tNearest);
-                const Vec3 Normal_Hit = ObjectNearest->get_surface_normal(ray.delta(tNearest));
-                color color_of_hit = determine_hit_color(Normal_Hit, Point_Hit, ObjectNearest, SceneObjectList, Light);
+
+            if (tNearest < MAX_RENDER_DISTANCE) {
+                Hit_Data hit_data(tNearest, ray.delta(tNearest), ObjectNearest->get_surface_normal(ray.delta(tNearest)), ObjectNearest);
+               
+                color color_of_hit = determine_hit_color(hit_data, SceneObjectList, Light);
                 output.data.push_back(color_of_hit);
             }
+            
+            else {
+                output.data.push_back(ray_color_background(ray));
+            }
+            
         }
     }
 }

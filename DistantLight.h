@@ -13,7 +13,7 @@ public:
 	DistantLight(const Vec3& dir, const color& col) : Direction(Normalized(dir)), Color(col) {}
 
 	bool check_direct_Lighting(const Point3& Point_Hit, const Vec3& Normal_Hit, const std::vector<std::shared_ptr<Object>>& ObjectList) const {
-		const float bias = 0.01;
+		const float bias = 0.001;
 		const Ray RayToLightSource(Point_Hit + bias * Normal_Hit, -Direction);
 		float temp = 0;
 
