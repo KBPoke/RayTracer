@@ -7,10 +7,11 @@
 class DistantLight {
 	Vec3 Direction;
 	color Color;
+	float Intensity;
 
 public:
-	DistantLight(const Vec3& dir) : Direction(Normalized(dir)), Color(color(1.0, 1.0, 1.0)) {}
-	DistantLight(const Vec3& dir, const color& col) : Direction(Normalized(dir)), Color(col) {}
+	DistantLight(const Vec3& dir) : Direction(Normalized(dir)), Color(color(1.0, 1.0, 1.0)), Intensity(5) {}
+	DistantLight(const Vec3& dir, const color& col, float intensity) : Direction(Normalized(dir)), Color(col), Intensity(intensity) {}
 
 	bool check_direct_Lighting(const Point3& Point_Hit, const Vec3& Normal_Hit, const std::vector<std::shared_ptr<Object>>& ObjectList) const {
 		const float bias = 0.001;
@@ -32,5 +33,9 @@ public:
 
 	const Vec3& get_direction() const {
 		return Direction;
+	}
+
+	const float get_intensity() const {
+		return Intensity;
 	}
 };

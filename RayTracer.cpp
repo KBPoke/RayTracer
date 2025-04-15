@@ -20,7 +20,7 @@ int main()
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(-0.1, 0.1, 2), 1));
     SceneObjects.push_back(plane);
 
-    DistantLight Light(Vec3(-1, -1, 0));
+    DistantLight Light(Vec3(-2, -2, 1), color(1.0,1.0,1.0), 4);
 
     Image image(1280, 960);
 

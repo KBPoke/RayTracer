@@ -28,7 +28,7 @@ const color& determine_hit_color(Hit_Data hit_data, const std::vector<std::share
         visibility_mult = 0.05;
     }
 
-    const color ret = 5 * visibility_mult * hit_data.Object_Hit->get_albedo() * Light.get_color() 
+    const color ret = visibility_mult * hit_data.Object_Hit->get_albedo() * Light.get_color() * Light.get_intensity()
         * std::max(0.f, Dot_Product(-Light.get_direction(), hit_data.Hit_Normal)) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit);
 
     return ret;
