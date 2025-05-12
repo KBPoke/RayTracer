@@ -19,8 +19,10 @@ int main()
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(1, 0, 1), 0.5, color(0, 1, 1)));
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(-0.1, 0.1, 2), 1));
     SceneObjects.push_back(plane);
+    SceneObjects.push_back(std::make_shared<Sphere>(Point3(-0.1, 1.9, 2), 0.5, color(0, 0, 0), Reflective));
+    SceneObjects.push_back(std::make_shared<Sphere>(Point3(-1, 1.9, 1), 0.5, color(0, 0, 0), Reflective));
 
-    DistantLight Light(Vec3(-2, -2, 1), color(1.0,1.0,1.0), 4);
+    DistantLight Light(Vec3(-2, -2, 1), color(1.0,1.0,1.0), 10);
 
     Image image(1280, 960);
 

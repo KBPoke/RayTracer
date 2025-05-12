@@ -7,10 +7,12 @@ class Sphere : public Object {
 	float radius, radius_square;
 	color SphereColor;
 	float albedo;
+	ObjectType type;
 
 public:
-	Sphere(const Point3& c, const float r) : centre(c), radius(r), radius_square(r * r), SphereColor(color(1,0,0)), albedo(0.18) {}
-	Sphere(const Point3& c, const float r, color Color) : centre(c), radius(r), radius_square(r * r), SphereColor(Color), albedo(0.18) {}
+	Sphere(const Point3& c, const float r) : centre(c), radius(r), radius_square(r * r), SphereColor(color(1,0,0)), albedo(0.18), type(Diffuse) {}
+	Sphere(const Point3& c, const float r, color Color) : centre(c), radius(r), radius_square(r * r), SphereColor(Color), albedo(0.18), type(Diffuse) {}
+	Sphere(const Point3& c, const float r, color Color, ObjectType type) : centre(c), radius(r), radius_square(r* r), SphereColor(Color), albedo(0.18), type(type) {}
 
 	bool check_intersection(const Ray& ray, float& t) const override {
 		Vec3 displacement = ray.origin - centre;
@@ -34,5 +36,9 @@ public:
 
 	const float& get_albedo() const override {
 		return albedo;
+	}
+
+	const ObjectType& get_type() const override {
+		return type;
 	}
 };

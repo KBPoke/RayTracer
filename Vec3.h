@@ -88,6 +88,9 @@ struct Vec3 {
         return Vec3(v.x * InvNorm, v.y * InvNorm, v.z * InvNorm);
     }
 
+    friend Vec3 Reflect(const Vec3& incident, const Vec3& normal) {
+        return incident - 2 * normal * Dot_Product(incident, normal);
+    }
 };
 
 using Point3 = Vec3;

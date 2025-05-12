@@ -1,5 +1,9 @@
 #include "Camera.h"
 
+extern const float PI;
+
+const int MAX_DEPTH = 5;
+
 color ray_color_background(const Ray& r) {
 	auto a = 0.5 * (r.direction.y + 1.0);
 	return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.1, 0.4, 0.7);
@@ -17,21 +21,64 @@ Camera::Camera(const Point3& origin, const float& focal_length, const float& siz
 	pixel00_loc = viewport_upper_left_position + 0.5 * (pixel_delta_horizontal + pixel_delta_vertical);
 }
 
-const color& Normal_Based_Surface_Color(const Vec3& Normal_Hit,const std::shared_ptr<const Object>& HitObject) {
+const color Normal_Based_Surface_Color(const Vec3& Normal_Hit,const std::shared_ptr<const Object>& HitObject) {
     return 0.5 * (0.5 * color(Normal_Hit.x + 1, Normal_Hit.y + 1, Normal_Hit.z + 1) + HitObject->get_color());
 }
 
-const color& determine_hit_color(Hit_Data hit_data, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {
+const color diffuse_hit_color(Hit_Data hit_data, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {
     float visibility_mult = 1.0;
 
     if (Light.check_direct_Lighting(hit_data.Point_Hit, hit_data.Hit_Normal, SceneObjectList) == false) {
         visibility_mult = 0.05;
     }
 
-    const color ret = visibility_mult * hit_data.Object_Hit->get_albedo() * Light.get_color() * Light.get_intensity()
+    const color ret = visibility_mult * hit_data.Object_Hit->get_albedo() * Light.get_color() * Light.get_intensity() / PI
         * std::max(0.f, Dot_Product(-Light.get_direction(), hit_data.Hit_Normal)) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit);
 
     return ret;
+}
+
+const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth = 0) {
+    float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
+    std::shared_ptr<const Object> ObjectNearest = nullptr;
+
+    if (Depth > MAX_DEPTH) {
+        return ray_color_background(ray);
+    }
+
+    //checking for Object hits
+    for (const std::shared_ptr<const Object> object : SceneObjectList) {
+        if (object->check_intersection(ray, ttemp) == true) {
+            if (ttemp < tNearest) {
+                tNearest = ttemp;
+                ObjectNearest = object;
+            }
+        }
+    }
+
+    if (tNearest < MAX_RENDER_DISTANCE) {
+        Hit_Data hit_data(ray, tNearest, ray.delta(tNearest), ObjectNearest->get_surface_normal(ray.delta(tNearest)), ObjectNearest);
+        color color_of_hit(0, 0, 0);
+
+        switch (ObjectNearest->get_type()) {
+        case Diffuse:
+            color_of_hit = diffuse_hit_color(hit_data, SceneObjectList, Light);
+            break;
+        case Reflective:
+        {
+            Vec3 Reflected = Reflect(hit_data.ray.direction, hit_data.Hit_Normal);
+            color_of_hit += 0.9 * cast_ray(Ray(hit_data.Point_Hit, Reflected), SceneObjectList, Light, Depth + 1);
+            break;
+        }
+        case Refractive:
+            break;
+        case Fresnel:
+            break;
+        }
+        return color_of_hit;
+    }
+
+    return ray_color_background(ray);
 }
 
 void Camera::render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {
@@ -41,31 +88,7 @@ void Camera::render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjec
             const Vec3 ray_direction = pixel_center - camera_origin;
             Ray ray(camera_origin, ray_direction);
 
-            float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
-            std::shared_ptr<const Object> ObjectNearest = nullptr;
-
-
-            //checking for Object hits
-            for (const std::shared_ptr<const Object> object : SceneObjectList) {
-                if (object->check_intersection(ray, ttemp) == true) {
-                    if (ttemp < tNearest) {
-                        tNearest = ttemp;
-                        ObjectNearest = object;
-                    }
-                }
-            }
-
-            if (tNearest < MAX_RENDER_DISTANCE) {
-                Hit_Data hit_data(tNearest, ray.delta(tNearest), ObjectNearest->get_surface_normal(ray.delta(tNearest)), ObjectNearest);
-               
-                color color_of_hit = determine_hit_color(hit_data, SceneObjectList, Light);
-                output.data.push_back(color_of_hit);
-            }
-            
-            else {
-                output.data.push_back(ray_color_background(ray));
-            }
-            
+            output.data.push_back(cast_ray(ray, SceneObjectList, Light));
         }
     }
 }
