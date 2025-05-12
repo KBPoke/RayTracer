@@ -71,9 +71,20 @@ const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& 
             break;
         }
         case Refractive:
+        {
+            Vec3 Refracted = Refract(hit_data.ray.direction, hit_data.Hit_Normal, 2);
+            color_of_hit += 0.9 * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Refracted), SceneObjectList, Light, Depth + 1);
             break;
+        }
         case Fresnel:
+        {
+            float reflected_light_ratio = Fresnel_reflected_ratio(hit_data.ray.direction, hit_data.Hit_Normal, 2);
+            Vec3 Reflected = Reflect(hit_data.ray.direction, hit_data.Hit_Normal);
+            Vec3 Refracted = Refract(hit_data.ray.direction, hit_data.Hit_Normal, 2);
+            color_of_hit += 0.9 * reflected_light_ratio * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Reflected), SceneObjectList, Light, Depth + 1) + 
+                0.9 * (1 - reflected_light_ratio) * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Refracted), SceneObjectList, Light, Depth + 1);
             break;
+        }
         }
         return color_of_hit;
     }

@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <iostream>
+#include <cmath>
 
 struct Vec3 {
     float x, y, z;
@@ -90,6 +91,48 @@ struct Vec3 {
 
     friend Vec3 Reflect(const Vec3& incident, const Vec3& normal) {
         return incident - 2 * normal * Dot_Product(incident, normal);
+    }
+
+    friend Vec3 Refract(const Vec3& incident, Vec3 normal, const float refraction_index) {
+        float cosine_of_vector_angle = Dot_Product(incident, normal);
+        float index_ratio = 1 / refraction_index;
+
+        if (cosine_of_vector_angle < 0) {
+            cosine_of_vector_angle = -cosine_of_vector_angle;
+        }
+        else {
+            normal = -normal;
+            index_ratio = refraction_index;
+        }
+        
+        float k = 1 - index_ratio * index_ratio * (1 - cosine_of_vector_angle * cosine_of_vector_angle);
+        if (k < 0) {
+            return Reflect(incident, normal);
+        }
+        else return index_ratio * incident + (index_ratio * cosine_of_vector_angle - sqrt(k)) * normal;
+    }
+
+    friend float Fresnel_reflected_ratio(const Vec3& incident, Vec3 normal, const float refraction_index) {
+        float cosine_of_vector_angle = Dot_Product(incident, normal);
+        float index_ratio = 1 / refraction_index;
+
+        if (cosine_of_vector_angle > 0) {
+            index_ratio = refraction_index;
+        }
+
+        float sine_of_refracted_vector_angle = index_ratio * std::sqrtf(std::max(0.f, 1 - cosine_of_vector_angle * cosine_of_vector_angle));
+        // Total internal reflection
+        if (sine_of_refracted_vector_angle >= 1) {
+            return 1;
+        }
+        else {
+            float cosine_of_refracted_vector_angle = std::sqrtf(std::max(0.f, 1 - sine_of_refracted_vector_angle * sine_of_refracted_vector_angle));
+            cosine_of_vector_angle = std::fabsf(cosine_of_vector_angle);
+            float Rs = ((refraction_index * cosine_of_vector_angle) - cosine_of_refracted_vector_angle) / ((refraction_index * cosine_of_vector_angle) + cosine_of_refracted_vector_angle);
+            float Rp = (cosine_of_vector_angle - (refraction_index * cosine_of_refracted_vector_angle)) / (cosine_of_vector_angle + (refraction_index * cosine_of_refracted_vector_angle));
+            return (Rs * Rs + Rp * Rp) / 2;
+        }
+        return 0;
     }
 };
 
