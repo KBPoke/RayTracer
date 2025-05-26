@@ -30,13 +30,13 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
     std::shared_ptr<const Object> ObjectNearest = nullptr;
 
     if (Depth > MAX_DEPTH) {
-        return ray_color_background(ray);
+        return Light.check_direct_Lighting(ray.origin, ray.direction, SceneObjectList) * Light.get_color() * Light.get_intensity();
     }
 
     //checking for Object hits
     for (const std::shared_ptr<const Object> object : SceneObjectList) {
         if (object->check_intersection(ray, ttemp) == true) {
-            if (ttemp < tNearest) {
+            if (ttemp < tNearest && ttemp > 0.001) {
                 tNearest = ttemp;
                 ObjectNearest = object;
             }
@@ -49,13 +49,14 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
 
         switch (ObjectNearest->get_type()) {
         case Diffuse:
-            for (int sample = 0; sample < 1; sample++) {
-                const Vec3 random_offset = Vec3(rg.get_random() - 0.5, rg.get_random() - 0.5, 0);
-                const Vec3 monte_carlo_direction = -Light.get_direction();
+            for (int sample = 0; sample < sample_amount; sample++) {
+                const Vec3 monte_carlo_direction = hit_data.Hit_Normal + Normalized(Vec3(rg.get_random(), rg.get_random(), rg.get_random()));
                 Ray ray(hit_data.Point_Hit, monte_carlo_direction);
 
-                color_of_hit += cast_ray(ray, SceneObjectList, Light, Depth + 1) * hit_data.Object_Hit->get_color() ;
+                color_of_hit += cast_ray(ray, SceneObjectList, Light, Depth + 1) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit)
+                    * hit_data.Object_Hit->get_albedo();
             }
+            color_of_hit *= pixel_sample_scale * 2 * PI ;
             break;
         case Reflective:
         {
@@ -102,6 +103,7 @@ void Camera::render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjec
 
             output.data.push_back(pixel_sample_scale * pixel_color);
         }
+        std::cout << j << "\n";
     }
 }
 
