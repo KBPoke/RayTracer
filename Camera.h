@@ -7,6 +7,7 @@
 #include "Object.h"
 #include "DistantLight.h"
 #include "Hit_Data.h"
+#include "PRNG.h"
 
 class Camera {
     Point3 camera_origin;
@@ -16,6 +17,9 @@ class Camera {
     Vec3 pixel_delta_horizontal;
     Vec3 pixel_delta_vertical;
     Point3 pixel00_loc;
+    PRNG rg;
+    const unsigned int sample_amount = 10;
+    const float pixel_sample_scale = 1.0 / sample_amount;
 
 public:
     Camera(const Point3& origin, const float& focal_length, const float& size, Image& image);

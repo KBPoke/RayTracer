@@ -10,7 +10,7 @@ color ray_color_background(const Ray& r) {
 }
 
 Camera::Camera(const Point3& origin, const float& focal_length, const float& size, Image& image)
-: camera_origin(origin), focal_length(focal_length), viewport_size(size), output(image) {
+: camera_origin(origin), focal_length(focal_length), viewport_size(size), output(image), rg() {
 	const Vec3 viewport_horizontal_vector(size, 0, 0);
 	const Vec3 viewport_vertical_vector(0, -size * (float(image.height) / image.width), 0);
 
@@ -80,8 +80,8 @@ const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& 
         {
             float reflected_light_ratio = Fresnel_reflected_ratio(hit_data.ray.direction, hit_data.Hit_Normal, 2);
             Vec3 Reflected = Reflect(hit_data.ray.direction, hit_data.Hit_Normal);
-            Vec3 Refracted = Refract(hit_data.ray.direction, hit_data.Hit_Normal, 2);
-            color_of_hit += 0.9 * reflected_light_ratio * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Reflected), SceneObjectList, Light, Depth + 1) + 
+            Vec3 Refracted = Refract(hit_data.ray.direction, hit_data.Hit_Normal, 1.8);
+            color_of_hit += 0.9 * reflected_light_ratio * cast_ray(Ray(hit_data.Point_Hit + 0.001 * hit_data.Hit_Normal, Reflected), SceneObjectList, Light, Depth + 1) + 
                 0.9 * (1 - reflected_light_ratio) * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Refracted), SceneObjectList, Light, Depth + 1);
             break;
         }
@@ -97,9 +97,17 @@ void Camera::render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjec
         for (int i = 0; i < output.width; i++) {
             const Point3 pixel_center = pixel00_loc + (i * pixel_delta_horizontal) + (j * pixel_delta_vertical);
             const Vec3 ray_direction = pixel_center - camera_origin;
-            Ray ray(camera_origin, ray_direction);
 
-            output.data.push_back(cast_ray(ray, SceneObjectList, Light));
+            color pixel_color = color(0,0,0);
+            for (int sample = 0; sample < sample_amount; sample++) {
+                const Vec3 random_offset = Vec3(rg.get_random() - 0.5, rg.get_random() - 0.5, 0);
+                const Vec3 monte_carlo_direction = ray_direction + random_offset.x * pixel_delta_horizontal + random_offset.y * pixel_delta_vertical;
+                Ray ray(camera_origin, monte_carlo_direction);
+                
+                pixel_color += cast_ray(ray, SceneObjectList, Light);
+            }
+
+            output.data.push_back(pixel_sample_scale * pixel_color);
         }
     }
 }

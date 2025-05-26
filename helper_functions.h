@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdlib>
 
 #define MAX_RENDER_DISTANCE 1e9
 
