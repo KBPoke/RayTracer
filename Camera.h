@@ -21,6 +21,8 @@ class Camera {
     const unsigned int sample_amount = 10;
     const float pixel_sample_scale = 1.0 / sample_amount;
 
+    const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth);
+
 public:
     Camera(const Point3& origin, const float& focal_length, const float& size, Image& image);
 

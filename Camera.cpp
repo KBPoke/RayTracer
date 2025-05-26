@@ -25,20 +25,7 @@ const color Normal_Based_Surface_Color(const Vec3& Normal_Hit,const std::shared_
     return 0.5 * (0.5 * color(Normal_Hit.x + 1, Normal_Hit.y + 1, Normal_Hit.z + 1) + HitObject->get_color());
 }
 
-const color diffuse_hit_color(Hit_Data hit_data, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {
-    float visibility_mult = 1.0;
-
-    if (Light.check_direct_Lighting(hit_data.Point_Hit, hit_data.Hit_Normal, SceneObjectList) == false) {
-        visibility_mult = 0.05;
-    }
-
-    const color ret = visibility_mult * hit_data.Object_Hit->get_albedo() * Light.get_color() * Light.get_intensity() / PI
-        * std::max(0.f, Dot_Product(-Light.get_direction(), hit_data.Hit_Normal)) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit);
-
-    return ret;
-}
-
-const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth = 0) {
+const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth = 0) {
     float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
     std::shared_ptr<const Object> ObjectNearest = nullptr;
 
@@ -62,7 +49,13 @@ const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& 
 
         switch (ObjectNearest->get_type()) {
         case Diffuse:
-            color_of_hit = diffuse_hit_color(hit_data, SceneObjectList, Light);
+            for (int sample = 0; sample < 1; sample++) {
+                const Vec3 random_offset = Vec3(rg.get_random() - 0.5, rg.get_random() - 0.5, 0);
+                const Vec3 monte_carlo_direction = -Light.get_direction();
+                Ray ray(hit_data.Point_Hit, monte_carlo_direction);
+
+                color_of_hit += cast_ray(ray, SceneObjectList, Light, Depth + 1) * hit_data.Object_Hit->get_color() ;
+            }
             break;
         case Reflective:
         {
