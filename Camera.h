@@ -18,7 +18,7 @@ class Camera {
     Vec3 pixel_delta_vertical;
     Point3 pixel00_loc;
     PRNG rg;
-    const unsigned int sample_amount = 4;
+    const unsigned int sample_amount = 7;
     const float pixel_sample_scale = 1.0 / sample_amount;
 
     const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth);

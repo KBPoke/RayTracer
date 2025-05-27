@@ -2,7 +2,7 @@
 
 extern const float PI;
 
-const int MAX_DEPTH = 5;
+const int MAX_DEPTH = 7;
 
 color ray_color_background(const Ray& r) {
 	auto a = 0.5 * (r.direction.y + 1.0);
@@ -29,9 +29,8 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
     float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
     std::shared_ptr<const Object> ObjectNearest = nullptr;
 
-    if (Depth > MAX_DEPTH) {
-        return Light.check_direct_Lighting(ray.origin, ray.direction, SceneObjectList) * Light.get_color() * Light.get_intensity() / 2 + 
-            ray_color_background(ray) / 2;
+    if (Depth >= MAX_DEPTH) {
+        return color(0, 0, 0);
     }
 
     //checking for Object hits
@@ -54,7 +53,7 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
                 const Vec3 monte_carlo_direction = hit_data.Hit_Normal + Normalized(Vec3(rg.get_random(), rg.get_random(), rg.get_random()));
                 Ray ray(hit_data.Point_Hit, monte_carlo_direction);
 
-                color_of_hit += cast_ray(ray, SceneObjectList, Light, Depth + 1) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit)
+                color_of_hit += cast_ray(ray, SceneObjectList, Light, Depth + 2) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit)
                     * hit_data.Object_Hit->get_albedo();
             }
             color_of_hit *= pixel_sample_scale * 2 * PI ;
@@ -84,7 +83,7 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
         return color_of_hit;
     }
 
-    return Light.check_direct_Lighting(ray.origin, ray.direction, SceneObjectList) * Light.get_color() * Light.get_intensity() / 2 + 
+    return Light.get_color() * Light.get_intensity() / 2 + 
         ray_color_background(ray) / 2;
 }
 
