@@ -30,7 +30,8 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
     std::shared_ptr<const Object> ObjectNearest = nullptr;
 
     if (Depth > MAX_DEPTH) {
-        return Light.check_direct_Lighting(ray.origin, ray.direction, SceneObjectList) * Light.get_color() * Light.get_intensity();
+        return Light.check_direct_Lighting(ray.origin, ray.direction, SceneObjectList) * Light.get_color() * Light.get_intensity() / 2 + 
+            ray_color_background(ray) / 2;
     }
 
     //checking for Object hits
@@ -83,7 +84,8 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
         return color_of_hit;
     }
 
-    return ray_color_background(ray);
+    return Light.check_direct_Lighting(ray.origin, ray.direction, SceneObjectList) * Light.get_color() * Light.get_intensity() / 2 + 
+        ray_color_background(ray) / 2;
 }
 
 void Camera::render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {

@@ -22,7 +22,7 @@ int main()
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(-0.1, 1.9, 2), 0.5, color(0, 0, 0), Refractive));
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(-10, 5, 10), 4, color(1, 0.7, 1)));
 
-    DistantLight Light(Vec3(-2, -2, 1), color(1.0,1.0,1.0), 10);
+    DistantLight Light(Vec3(-2, -2, 1), color(1.0, 1.0, 1.0), 1);
 
     Image image(1280, 960);
 
