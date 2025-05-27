@@ -21,8 +21,11 @@ int main()
     SceneObjects.push_back(plane);
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(-0.5, 0.5, 4), 0.5, color(0, 1, 1)));
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(-2, 0.5, 7), 0.5, color(1, 0.7, 1)));
-    SceneObjects.push_back(std::make_shared<Sphere>(Point3(3, 0.5, 8), 0.5, color(1, 0.7, 1)));
+    SceneObjects.push_back(std::make_shared<Sphere>(Point3(2, 0.5, 8), 0.5, color(1, 0.7, 1)));
     SceneObjects.push_back(std::make_shared<Sphere>(Point3(0, 0.5, 5), 0.5, color(), Fresnel));
+    SceneObjects.push_back(std::make_shared<Sphere>(Point3(0, 0.5, 8), 0.5, color(), Reflective));
+    SceneObjects.push_back(std::make_shared<Sphere>(Point3(3, 0.5, 14), 0.5, color(0.8,0,0.4)));
+    SceneObjects.push_back(std::make_shared<Sphere>(Point3(1.3, 0.5, 2.5), 0.5, color(1, 0.3, 0)));
 
     DistantLight Light(Vec3(-2, -2, 1), color(1.0, 1.0, 1.0), 0.7);
 
