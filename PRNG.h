@@ -2,6 +2,10 @@
 #include <cstdint>
 #include <random>
 #include <limits>
+#include <cmath>
+#include "Vec3.h"
+
+extern const float PI;
 
 class PRNG {
 private:
@@ -36,5 +40,12 @@ public:
 
 	float get_random(float min, float max) {
 		return min + get_random() * (max - min);
+	}
+
+	Vec3 get_vector_on_sphere() {
+		const float theta = get_random(-PI/2, PI/2);
+		const float phi = get_random(0, 2*PI);
+
+		return Vec3(cos(phi)*sin(theta), cos(theta), sin(phi)*cos(theta));
 	}
 };

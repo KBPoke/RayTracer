@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <thread>
 #include "helper_functions.h"
 #include "Vec3.h"
 #include "Image.h"
@@ -21,7 +22,9 @@ class Camera {
     const unsigned int sample_amount = 7;
     const float pixel_sample_scale = 1.0 / sample_amount;
 
-    const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth);
+    const color render_pixel(const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, const Vec3& ray_direction);
+
+    const color cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth = 0);
 
 public:
     Camera(const Point3& origin, const float& focal_length, const float& size, Image& image);
