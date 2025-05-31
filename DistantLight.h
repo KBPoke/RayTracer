@@ -10,6 +10,7 @@ class DistantLight {
 	float Intensity;
 
 public:
+	DistantLight() : Direction(Vec3(0,-1,0)), Color(color(1.0, 1.0, 1.0)), Intensity(1) {}
 	DistantLight(const Vec3& dir) : Direction(Normalized(dir)), Color(color(1.0, 1.0, 1.0)), Intensity(5) {}
 	DistantLight(const Vec3& dir, const color& col, float intensity) : Direction(Normalized(dir)), Color(col), Intensity(intensity) {}
 

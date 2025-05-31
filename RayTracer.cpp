@@ -37,8 +37,9 @@ int main()
     Point3 camera_origin(0, 2.5, -0.5);
 
     Camera camera(camera_origin, focal_length, viewport_width, image);
+    camera.move_scene(SceneObjects, Light);
 
-    camera.render_scene(SceneObjects, Light);
+    camera.render_scene();
 
     camera.print_output();
 }

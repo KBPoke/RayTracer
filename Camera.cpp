@@ -4,14 +4,17 @@ extern const float PI;
 
 const int MAX_DEPTH = 7;
 
-const color Camera::render_pixel(const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, const Vec3& ray_direction) {
+const color Camera::render_pixel(int x, int y) const {
+    const Point3 pixel_center = pixel00_loc + (x * pixel_delta_horizontal) + (y * pixel_delta_vertical);
+    const Vec3 ray_direction = pixel_center - camera_origin;
+
     color pixel_color = color(0, 0, 0);
     for (int sample = 0; sample < sample_amount; sample++) {
         const Vec3 random_offset = Vec3(rg.get_random() - 0.5, rg.get_random() - 0.5, 0);
         const Vec3 monte_carlo_direction = ray_direction + random_offset.x * pixel_delta_horizontal + random_offset.y * pixel_delta_vertical;
         Ray ray(camera_origin, monte_carlo_direction);
 
-        pixel_color += cast_ray(ray, SceneObjectList, Light);
+        pixel_color += cast_ray(ray);
     }
 
     return pixel_color * pixel_sample_scale;
@@ -23,7 +26,7 @@ color ray_color_background(const Ray& r) {
 }
 
 Camera::Camera(const Point3& origin, const float& focal_length, const float& size, Image& image)
-: camera_origin(origin), focal_length(focal_length), viewport_size(size), output(image), rg() {
+: camera_origin(origin), focal_length(focal_length), viewport_size(size), output(image), rg(), SceneObjectList(), Light() {
 	const Vec3 viewport_horizontal_vector(size, 0, 0);
 	const Vec3 viewport_vertical_vector(0, -size * (float(image.height) / image.width), 0);
 
@@ -38,7 +41,7 @@ const color Normal_Based_Surface_Color(const Vec3& Normal_Hit,const std::shared_
     return 0.5 * (0.5 * color(Normal_Hit.x + 1, Normal_Hit.y + 1, Normal_Hit.z + 1) + HitObject->get_color());
 }
 
-const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light, int Depth) {
+const color Camera::cast_ray(const Ray ray, int Depth) const {
     float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
     std::shared_ptr<const Object> ObjectNearest = nullptr;
 
@@ -66,7 +69,7 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
                 const Vec3 monte_carlo_direction = hit_data.Hit_Normal + rg.get_vector_on_sphere();
                 Ray ray(hit_data.Point_Hit, monte_carlo_direction);
 
-                color_of_hit += cast_ray(ray, SceneObjectList, Light, Depth + 2) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit)
+                color_of_hit += cast_ray(ray, Depth + 2) * Normal_Based_Surface_Color(hit_data.Hit_Normal, hit_data.Object_Hit)
                     * hit_data.Object_Hit->get_albedo();
             }
             color_of_hit *= pixel_sample_scale * 2 * PI ;
@@ -74,13 +77,13 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
         case Reflective:
         {
             Vec3 Reflected = Reflect(hit_data.ray.direction, hit_data.Hit_Normal);
-            color_of_hit += 0.9 * cast_ray(Ray(hit_data.Point_Hit, Reflected), SceneObjectList, Light, Depth + 1);
+            color_of_hit += 0.9 * cast_ray(Ray(hit_data.Point_Hit, Reflected), Depth + 1);
             break;
         }
         case Refractive:
         {
             Vec3 Refracted = Refract(hit_data.ray.direction, hit_data.Hit_Normal, 2);
-            color_of_hit += 0.9 * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Refracted), SceneObjectList, Light, Depth + 1);
+            color_of_hit += 0.9 * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Refracted), Depth + 1);
             break;
         }
         case Fresnel:
@@ -88,8 +91,8 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
             float reflected_light_ratio = Fresnel_reflected_ratio(hit_data.ray.direction, hit_data.Hit_Normal, 2);
             Vec3 Reflected = Reflect(hit_data.ray.direction, hit_data.Hit_Normal);
             Vec3 Refracted = Refract(hit_data.ray.direction, hit_data.Hit_Normal, 1.8);
-            color_of_hit += 0.9 * reflected_light_ratio * cast_ray(Ray(hit_data.Point_Hit + 0.001 * hit_data.Hit_Normal, Reflected), SceneObjectList, Light, Depth + 1) + 
-                0.9 * (1 - reflected_light_ratio) * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Refracted), SceneObjectList, Light, Depth + 1);
+            color_of_hit += 0.9 * reflected_light_ratio * cast_ray(Ray(hit_data.Point_Hit + 0.001 * hit_data.Hit_Normal, Reflected), Depth + 1) + 
+                0.9 * (1 - reflected_light_ratio) * cast_ray(Ray(hit_data.Point_Hit - 0.001 * hit_data.Hit_Normal, Refracted), Depth + 1);
             break;
         }
         }
@@ -99,16 +102,18 @@ const color Camera::cast_ray(const Ray ray, const std::vector<std::shared_ptr<Ob
     return ray_color_background(ray);
 }
 
-void Camera::render_scene(const std::vector<std::shared_ptr<Object>>& SceneObjectList, const DistantLight& Light) {
+void Camera::render_scene_single_thread() {
     for (int j = 0; j < output.height; j++) {
         for (int i = 0; i < output.width; i++) {
-            const Point3 pixel_center = pixel00_loc + (i * pixel_delta_horizontal) + (j * pixel_delta_vertical);
-            const Vec3 ray_direction = pixel_center - camera_origin;
-
-            output.data.push_back(render_pixel(SceneObjectList, Light, ray_direction));
+            output.data.push_back(render_pixel(i, j));
         }
         std::cout << j << "\n";
     }
+}
+
+void Camera::render_scene() {
+    Camera::Renderer renderer(*this);
+    renderer.render_image();
 }
 
 void Camera::print_output() const {
