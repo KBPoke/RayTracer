@@ -47,12 +47,12 @@ const color Normal_Based_Surface_Color(const Vec3& Normal_Hit,const std::shared_
     return 0.5 * (0.5 * color(Normal_Hit.x + 1, Normal_Hit.y + 1, Normal_Hit.z + 1) + HitObject->get_color());
 }
 
-const color&& Camera::cast_ray(const Ray ray, int Depth) const {
+const color Camera::cast_ray(const Ray ray, int Depth) const {
     float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
     std::shared_ptr<const Object> ObjectNearest = nullptr;
 
     if (Depth >= MAX_DEPTH) {
-        return std::move(color(0, 0, 0));
+        return color(0, 0, 0);
     }
 
     //checking for Object hits
@@ -102,7 +102,7 @@ const color&& Camera::cast_ray(const Ray ray, int Depth) const {
             break;
         }
         }
-        return std::move(color_of_hit);
+        return color_of_hit;
     }
 
     return ray_color_background(ray);

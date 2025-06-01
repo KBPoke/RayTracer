@@ -28,13 +28,6 @@ struct Vec3 {
         return *this;
     }
 
-    Vec3& operator+=(const Vec3&& v) { //Cannot add to itself, but I don't think that's ever what you'd want to do over scalar doubling
-        x += v.x;
-        y += v.y;
-        z += v.z;
-        return *this;
-    }
-
     Vec3& operator*=(const float a) {
         x *= a;
         y *= a;

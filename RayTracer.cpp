@@ -29,7 +29,7 @@ int main()
 
     DistantLight Light(Vec3(-2, -2, 1), color(1.0, 1.0, 1.0), 0.7);
 
-    Image image(1280, 960);
+    Image image(1920, 1080);
 
     float focal_length = 1.0;
     float viewport_height = 2.0;

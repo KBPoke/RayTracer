@@ -27,7 +27,7 @@ class Camera {
 
     const color render_pixel(int x, int y) const;
 
-    const color&& cast_ray(const Ray ray, int Depth = 0) const;
+    const color cast_ray(const Ray ray, int Depth = 0) const;
 
     class Renderer {
     private:

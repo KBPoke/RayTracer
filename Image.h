@@ -8,7 +8,7 @@ struct Image {
 	std::vector<color> data;
 
     Image(const int width_, const int height_) : width(width_), height(height_) {
-        data.reserve(width * height);
+        data.resize(width * height);
     }
 
     void print_image() const{
