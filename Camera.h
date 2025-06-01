@@ -18,7 +18,7 @@ class Camera {
     Vec3 pixel_delta_horizontal;
     Vec3 pixel_delta_vertical;
     Point3 pixel00_loc;
-    mutable PRNG rg;
+    static thread_local PRNG rg;
     const int sample_amount = 12;
     const float pixel_sample_scale = 1.0 / sample_amount;
     std::vector<std::shared_ptr<Object>> SceneObjectList; 
@@ -27,7 +27,7 @@ class Camera {
 
     const color render_pixel(int x, int y) const;
 
-    const color cast_ray(const Ray ray, int Depth = 0) const;
+    const color&& cast_ray(const Ray ray, int Depth = 0) const;
 
     class Renderer {
     private:

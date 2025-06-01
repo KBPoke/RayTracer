@@ -4,7 +4,13 @@ extern const float PI;
 
 const int MAX_DEPTH = 7;
 
+
+thread_local PRNG Camera::rg = PRNG();
+
 const color Camera::render_pixel(int x, int y) const {
+    if (x == 0) {
+        std::cout << "rendering line " << y << "\n";
+    }
     const Point3 pixel_center = pixel00_loc + (x * pixel_delta_horizontal) + (y * pixel_delta_vertical);
     const Vec3 ray_direction = pixel_center - camera_origin;
 
@@ -26,7 +32,7 @@ color ray_color_background(const Ray& r) {
 }
 
 Camera::Camera(const Point3& origin, const float& focal_length, const float& size, Image& image)
-: camera_origin(origin), focal_length(focal_length), viewport_size(size), output(image), rg(), SceneObjectList(), Light() {
+: camera_origin(origin), focal_length(focal_length), viewport_size(size), output(image), SceneObjectList(), Light() {
 	const Vec3 viewport_horizontal_vector(size, 0, 0);
 	const Vec3 viewport_vertical_vector(0, -size * (float(image.height) / image.width), 0);
 
@@ -41,16 +47,16 @@ const color Normal_Based_Surface_Color(const Vec3& Normal_Hit,const std::shared_
     return 0.5 * (0.5 * color(Normal_Hit.x + 1, Normal_Hit.y + 1, Normal_Hit.z + 1) + HitObject->get_color());
 }
 
-const color Camera::cast_ray(const Ray ray, int Depth) const {
+const color&& Camera::cast_ray(const Ray ray, int Depth) const {
     float tNearest = MAX_RENDER_DISTANCE, ttemp = MAX_RENDER_DISTANCE;
     std::shared_ptr<const Object> ObjectNearest = nullptr;
 
     if (Depth >= MAX_DEPTH) {
-        return color(0, 0, 0);
+        return std::move(color(0, 0, 0));
     }
 
     //checking for Object hits
-    for (const std::shared_ptr<const Object> object : SceneObjectList) {
+    for (const auto& object : SceneObjectList) {
         if (object->check_intersection(ray, ttemp) == true) {
             if (ttemp < tNearest && ttemp > 0.001) {
                 tNearest = ttemp;
@@ -96,7 +102,7 @@ const color Camera::cast_ray(const Ray ray, int Depth) const {
             break;
         }
         }
-        return color_of_hit;
+        return std::move(color_of_hit);
     }
 
     return ray_color_background(ray);
@@ -107,7 +113,6 @@ void Camera::render_scene_single_thread() {
         for (int i = 0; i < output.width; i++) {
             output.data.push_back(render_pixel(i, j));
         }
-        std::cout << j << "\n";
     }
 }
 
